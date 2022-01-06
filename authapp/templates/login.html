@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Log In
+{% endblock title %}
+
+{% block content %}
+    <div class="container text-center mt-5">
+        <h1>Log In Page</h1>
+        <div id="alert" class="alert alert-danger" role="alert" style="display: none;">
+          A simple danger alert—check it out!
+        </div>
+        <div id="dash" style="display: none;">
+          <a href="{% url 'accounts:dashboard' %}" class="btn btn-info">Got to Dashboard</a>
+        </div>
+        <form class="row g-3 my-3">
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="email">
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-6">
+                  <input type="password" class="form-control" id="password">
+                </div>
+              </div>
+            <div class="col-6">
+              <button id="login-button" type="submit" class="btn btn-primary mb-3">Log In</button>
+              <a href="{% url 'accounts:signup' %}" class="mx-5 text-decoration-none">Sign Up</a>
+            </div>
+          </form>
+    </div>
+
+
+    <script>
+      $(document).on('click', '#login-button', function (e) {
+          e.preventDefault();
+          var email = document.getElementById('email').value
+          var password = document.getElementById('password').value
+          $.ajax({
+              type: 'POST',
+              url: '{% url "accounts:login_view" %}',
+              data: {
+                  email: email,
+                  password: password,
+                  csrfmiddlewaretoken: '{{csrf_token}}',
+                  action: 'post'
+              },
+              success: function (response) {
+                  var alert = document.getElementById('alert');
+                  alert.style.display = 'block';
+                  alert.classList.remove('alert-danger');
+                  alert.classList.add('alert-success');
+                  alert.innerText = 'Successfully loged in';
+                  var dash = document.getElementById('dash');
+                  dash.style.display = 'block';
+                  
+              },
+              error: function (xhr, errmsg, err) {
+                  var alert = document.getElementById('alert');
+                  alert.style.display = 'block';
+                  alert.classList.remove('alert-success');
+                  alert.classList.add('alert-danger');
+                  alert.innerText = errmsg;
+              }
+          });
+      });
+  </script>
+{% endblock content %}

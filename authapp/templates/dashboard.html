@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Dashboard
+{% endblock title %}
+
+{% block content %}
+    <div id="content" class="container text-center mt-5">
+        <h1>Dashboard</h1>
+        <a href="" class="btn btn-primary" id="logout-btn">Logout</a>
+        <table class="table mt-5">
+            <tbody>
+              <tr>
+                <th scope="row">Username</th>
+                <td id="username-data">Mark</td>
+                <td>
+                    <button id="username" class="btn btn-sm btn-warning mx-3 btn-edit">Edit</button>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Email</th>
+                <td id="email-data">Jacob</td>
+                <td>
+                    <button id="email" class="btn btn-sm btn-warning mx-3 btn-edit">Edit</button>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Address</th>
+                <td id="address-data">Larry the Bird</td>
+                <td>
+                    <button id="address" class="btn btn-sm btn-warning mx-3 btn-edit">Edit</button>
+                    <button id="delete-adr" class="btn btn-sm btn-danger mx-3 btn-delete">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+    <div id="edit-form" class="container mt-5 col-4" style="display: none;">
+      <h4>Change your details</h4>
+      <form class="form-inline">
+        <div class="form-group mb-2">
+          <label for="input-username" id="label">Username</label>
+          <input type="text" class="form-control" id="input-username" value="username">
+        </div>
+
+        <div class="form-group mb-2">
+          <label for="input-email" id="label">Email</label>
+          <input type="email" class="form-control" id="input-email" value="email@example.com">
+        </div>
+
+        <div class="form-group mb-2">
+          <label for="input-address" id="label">Address</label>
+          <input type="text" class="form-control" id="input-address" value="address">
+        </div>
+        <button id="save-btn" type="submit" class="btn btn-primary mb-2">Save changes</button>
+      </form>
+    </div>
+
+
+    <script>
+      $(document).ready(function () {
+          $.ajax({
+              type: 'GET',
+              url: '{% url "accounts:dashboard_view" %}',
+              success: function (response) {
+                  $('#username-data').text(response['username']);
+
+                  $('#email-data').text(response['email']);
+
+                  $('#address-data').text(response['address']);
+              },
+              error: function (xhr, errmsg, err) {
+                  var content = document.getElementById('content');
+                  content.innerHTML = '<div class="alert alert-danger" role="alert">Session expired</div>'
+              }
+          });
+      });
+
+      // Log Out
+      $(document).on('click', '#logout-btn', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'GET',
+            url: '{% url "accounts:logout_view" %}',
+            success: function (response) {
+              var content = document.getElementById('content');
+              content.innerHTML = '<div class="alert alert-success" role="alert">Successfully loged out</div><br><a href="{% url "accounts:login" %}" class="btn btn-primary">Log In</a>';
+            },
+            error: function (xhr, errmsg, err) {
+                var content = document.getElementById('content');
+                content.innerHTML = '<div class="alert alert-danger" role="alert">Session expired</div>';
+            }
+        });
+      });
+
+      // Edit details
+      $(document).on('click', '.btn-edit', function () {
+        $('#input-username').val($('#username-data').text());
+        $('#input-email').val($('#email-data').text());
+        $('#input-address').val($('#address-data').text());
+
+        var form = document.getElementById('edit-form');
+        form.style.display = 'block';
+
+        $(document).on('click', '#save-btn', function (e) {
+          e.preventDefault();
+          var inputUsername = $('#input-username').val();
+          var inputEmail = $('#input-email').val();
+          var inputAddress = $('#input-address').val();
+          $.ajax({
+              type: 'POST',
+              url: '{% url "accounts:edit_view" %}',
+              data: {
+                username: inputUsername,
+                email: inputEmail,
+                address: inputAddress,
+                csrfmiddlewaretoken: '{{csrf_token}}',
+              },
+              success: function (response) {
+                var form = document.getElementById('edit-form');
+                form.style.display = 'none';
+
+                $('#username-data').text(response['username']);
+
+                $('#email-data').text(response['email']);
+
+                $('#address-data').text(response['address']);
+              },
+              error: function (xhr, errmsg, err) {
+                  var content = document.getElementById('content');
+                  content.innerHTML = '<div class="alert alert-danger" role="alert">Session expired</div>';
+              }
+          });
+        });
+      });
+
+      // Delete detail
+      $(document).on('click', '#delete-adr', function () {
+        var Username = $('#username-data').text();
+        var Email = $('#email-data').text();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "accounts:delete_view" %}',
+            data: {
+              username: Username,
+              email: Email,
+              address: '',
+              csrfmiddlewaretoken: '{{csrf_token}}',
+            },
+            success: function (response) {
+              $('#username-data').text(response['username']);
+
+              $('#email-data').text(response['email']);
+
+              $('#address-data').text(response['address']);
+            },
+            error: function (xhr, errmsg, err) {
+                var content = document.getElementById('content');
+                content.innerHTML = '<div class="alert alert-danger" role="alert">Session expired</div>';
+            }
+        });
+      });
+  </script>
+{% endblock content %}

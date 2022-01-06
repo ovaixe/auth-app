@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Sign Up
+{% endblock title %}
+
+{% block content %}
+    <div class="container text-center mt-5">
+        <h1>Sign Up Page</h1>
+        <div id="alert" class="alert alert-danger" role="alert" style="display: none;">
+        </div>
+        <form class="row g-3 my-3">
+            <div class="mb-3 row">
+                <label for="username" class="col-sm-2 col-form-label">Username</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control" id="username">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-6">
+                <input type="email" class="form-control" id="email">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-6">
+                <input type="password" class="form-control" id="password">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="confirm-password" class="col-sm-2 col-form-label">Confirm Password</label>
+                <div class="col-sm-6">
+                <input type="password" class="form-control" id="confirm-password">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="address" class="col-sm-2 col-form-label">Address</label>
+                <div class="col-sm-6">
+                <input type="text" class="form-control" id="address">
+                </div>
+            </div>
+            <div class="col-6">
+            <button id="signup-button" type="submit" class="btn btn-primary mb-3">Sign Up</button>
+            <a href="{% url 'accounts:login' %}" class="mx-5 text-decoration-none">Log In</a>
+            </div>
+        </form>
+    </div>
+
+
+    <script>
+        $(document).on('click', '#signup-button', function (e) {
+            e.preventDefault();
+            var username = document.getElementById('username').value
+            var email = document.getElementById('email').value
+            var password = document.getElementById('password').value
+            var confirm_password = document.getElementById('confirm-password').value
+            var address = document.getElementById('address').value
+            $.ajax({
+                type: 'POST',
+                url: '{% url "accounts:register" %}',
+                data: {
+                    username: username,
+                    email: email,
+                    password: password,
+                    confirm_password: confirm_password,
+                    address: address,
+                    csrfmiddlewaretoken: '{{csrf_token}}',
+                    action: 'post'
+                },
+                success: function (response) {
+                    var alert = document.getElementById('alert');
+                    alert.style.display = 'block';
+                    alert.classList.remove('alert-danger');
+                    alert.classList.add('alert-success')
+                    alert.innerText = 'Successfully registered.'
+                    
+                },
+                error: function (xhr, errmsg, err) {
+                    var alert = document.getElementById('alert');
+                    alert.style.display = 'block';
+                    alert.classList.remove('alert-success');
+                    alert.classList.add('alert-danger');
+                    alert.innerText = errmsg
+                }
+            });
+        });
+    </script>
+{% endblock content %}
