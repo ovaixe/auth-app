@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-6imtjep_f57jrz7y4lf7&9qnxv2pzv$1zf7gn--kahoe1dhesa
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'owais-authapp.herokuapp.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
